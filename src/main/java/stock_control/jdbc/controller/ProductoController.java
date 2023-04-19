@@ -10,73 +10,64 @@ import java.util.List;
 import java.util.Map;
 
 import stock_control.connectionFactory.ConnectionFactory;
+import stock_control.jdbc.DAO.ProductDAO;
+import stock_control.jdbc.Model.Product;
 
 public class ProductoController {
 
-	public void modificar(String nombre, String descripcion, Integer id) {
-		// TODO
+	private ProductDAO productDAO;
+
+	public ProductoController() throws SQLException {
+		this.productDAO = new ProductDAO(new ConnectionFactory().RecoverConnection());
 	}
 
-	public void eliminar(Integer id) {
-		// TODO
-	}
+	public int modificar(Integer id, String nombre, String descripcion, Integer cantidad) throws SQLException {
+		final Connection myConnection = new ConnectionFactory().RecoverConnection();
+		try (myConnection) {
 
-	public List<Map<String, String>> listar() throws SQLException {
-		// Conects to the database
-		Connection myConnection = new ConnectionFactory().RecoverConnection();
+			final java.sql.PreparedStatement statement = myConnection.prepareStatement(
 
-			System.out.println("connecting by Listar()");
-			java.sql.Statement statement = myConnection.createStatement();
+					"UPDATE product SET "
+							+ " ProductName = '" + nombre + "'"
+							+ ", ProductDescription = '" + descripcion + "'"
+							+ ", ProductAmount = " + cantidad
+							+ " WHERE ProductId = " + id
 
-			//boolean: does the statement is a list or not?
-			statement.execute("SELECT ProductID, ProductName, ProductDescription, ProductAmount FROM product");
+			);
 
-			//returns a set type of the answer, which is a list of the result.
-			ResultSet resultSet = statement.getResultSet();
+			try (statement) {
 
-			//declare result as an array list mapeable
-			ArrayList<Map<String, String>> result = new ArrayList<>();
-
-			//iterates the result set
-			while (resultSet.next()) {
-				//declare what a row is, in this case, a HashMap
-				Map<String, String> row = new HashMap<>();
-				//creates a row for every row in the db
-				row.put("ProductID", String.valueOf(resultSet.getInt("ProductID")));
-				row.put("ProductName", resultSet.getString("ProductName"));
-				row.put("ProductDescription", resultSet.getString("ProductDescription"));
-				row.put("ProductAmount", resultSet.getString("ProductAmount"));
-
-				//for each valor of resultSet we transfer te info to a map and add it to result.
-				result.add(row);
+				statement.execute();
+				int updateCount = statement.getUpdateCount();
+				myConnection.close();
+				return updateCount;
 			}
-
-			//closes the conection
-			myConnection.close();
-			System.out.println("Closing by Listar()");
-
-			return result;
+		}
 	}
 
-    public void guardar(Map<String, String> producto) throws SQLException {
-		Connection myConnection = new ConnectionFactory().RecoverConnection();
-
-		java.sql.Statement statement = myConnection.createStatement();
-
-		statement.execute("INSERT INTO product(ProductName, ProductDescription, ProductAmount)"
-		+ " VALUES ('"+ producto.get("ProductName") 
-		+ "','" 
-		+ producto.get("ProductDescription") 
-		+ "'," + producto.get("ProductAmount") + ")", statement.RETURN_GENERATED_KEYS);
-		
-		
-		ResultSet resultSet = statement.getGeneratedKeys();
-
-		while (resultSet.next()) {
-			System.out.println(String.format("se inserto el producto con ID " + resultSet.getInt(1)));
+	public int eliminar(Integer id) throws SQLException {
+		final Connection myConnection = new ConnectionFactory().RecoverConnection();
+		try (myConnection) {
+			final java.sql.PreparedStatement statement = myConnection.prepareStatement(
+					"DELETE FROM product WHERE ProductID = " + id);
+			try (statement) {
+				statement.execute();
+				myConnection.close();
+				return statement.getUpdateCount();
+			}
 		}
+	}
 
-		
+	public List<Product> listar() throws SQLException {
+
+		return productDAO.Listar();
+
+
+	}
+
+	public void guardar(Product newProduct) {
+
+		productDAO.registerProduct(newProduct);
 	}
 
 }
