@@ -18,6 +18,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
+import stock_control.jdbc.Model.Category;
 import stock_control.jdbc.Model.Product;
 import stock_control.jdbc.controller.CategoriaController;
 import stock_control.jdbc.controller.ProductoController;
@@ -28,7 +29,7 @@ public class ControlDeStockFrame extends JFrame {
 
     private JLabel labelNombre, labelDescripcion, labelCantidad, labelCategoria;
     private JTextField textoNombre, textoDescripcion, textoCantidad;
-    private JComboBox<Object> comboCategoria;
+    private JComboBox<Category> comboCategoria;
     private JButton botonGuardar, botonModificar, botonLimpiar, botonEliminar, botonReporte;
     private JTable tabla;
     private DefaultTableModel modelo;
@@ -101,11 +102,11 @@ public class ControlDeStockFrame extends JFrame {
         textoDescripcion = new JTextField();
         textoCantidad = new JTextField();
         comboCategoria = new JComboBox<>();
-        comboCategoria.addItem("Elige una Categoría");
+        comboCategoria.addItem(new Category(0, "Elije una categoria"));
 
         // TODO
         var categorias = this.categoriaController.listar();
-        // categorias.forEach(categoria -> comboCategoria.addItem(categoria));
+        categorias.forEach(Category -> comboCategoria.addItem(Category));
 
         textoNombre.setBounds(10, 25, 265, 20);
         textoDescripcion.setBounds(10, 65, 265, 20);
@@ -163,12 +164,17 @@ public class ControlDeStockFrame extends JFrame {
 
         botonReporte.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                abrirReporte();
+                try {
+                    abrirReporte();
+                } catch (SQLException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
             }
         });
     }
 
-    private void abrirReporte() {
+    private void abrirReporte() throws SQLException {
         new ReporteFrame(this);
     }
 

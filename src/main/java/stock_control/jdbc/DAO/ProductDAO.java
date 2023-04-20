@@ -100,4 +100,41 @@ public class ProductDAO {
             throw new RuntimeException(e);
         }
     }
+
+    public int elimiar(Integer id) throws SQLException {
+        final Connection myConnection = new ConnectionFactory().RecoverConnection();
+		try (myConnection) {
+			final java.sql.PreparedStatement statement = myConnection.prepareStatement(
+					"DELETE FROM product WHERE ProductID = " + id);
+			try (statement) {
+				statement.execute();
+				myConnection.close();
+				return statement.getUpdateCount();
+			}
+		}
+    }
+
+    public int modificar(Integer id, String nombre, String descripcion, Integer cantidad) throws SQLException {
+		final Connection myConnection = new ConnectionFactory().RecoverConnection();
+		try (myConnection) {
+
+			final java.sql.PreparedStatement statement = myConnection.prepareStatement(
+
+					"UPDATE product SET "
+							+ " ProductName = '" + nombre + "'"
+							+ ", ProductDescription = '" + descripcion + "'"
+							+ ", ProductAmount = " + cantidad
+							+ " WHERE ProductId = " + id
+
+			);
+
+			try (statement) {
+
+				statement.execute();
+				int updateCount = statement.getUpdateCount();
+				myConnection.close();
+				return updateCount;
+			}
+		}
+	}
 }

@@ -1,6 +1,7 @@
 package stock_control.jdbc.view;
 
 import java.awt.Container;
+import java.sql.SQLException;
 
 import javax.swing.JFrame;
 import javax.swing.JTable;
@@ -17,7 +18,7 @@ public class ReporteFrame extends JFrame {
 
     private CategoriaController categoriaController;
 
-    public ReporteFrame(ControlDeStockFrame controlDeStockFrame) {
+    public ReporteFrame(ControlDeStockFrame controlDeStockFrame) throws SQLException {
         super("Reporte de produtos del stock");
 
         this.categoriaController = new CategoriaController();
